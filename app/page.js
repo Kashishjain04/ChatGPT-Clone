@@ -24,6 +24,7 @@ const HomePage = () => {
             <h2>Capabilities</h2>
           </div>
           <div className="space-y-2">
+            <p className="infoText">Remembers upto 3 pair of messages</p>
             <p className="infoText">Change the ChatGPT model to use</p>
             <p className="infoText">Messages are stored in Firebase's Firestore</p>
             <p className="infoText">Hot toast notifications when ChatGPT is thinking</p>

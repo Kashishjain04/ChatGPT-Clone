@@ -4,6 +4,21 @@ import query from "../../lib/queryApi";
 import admin from "firebase-admin";
 import { adminDb } from "../../firebaseAdmin";
 
+const getHistory = async (email, chatId) => {
+	const messages = await adminDb
+		.collection("users")
+		.doc(email)
+		.collection("chats")
+		.doc(chatId)
+		.collection("messages")
+		.orderBy("createdAt", "asc")
+		.limitToLast(6)
+		.get()
+		.then((res) => res.docs);
+	const history = messages.map((message) => `${message.data().user.name}: ${message.data().text}\n`);
+	return history;
+};
+
 export default async function handler(req, res) {
 	const { prompt, chatId, model, session } = req.body;
 	if (!prompt) {
@@ -12,7 +27,8 @@ export default async function handler(req, res) {
 	if (!chatId) {
 		return res.status(400).json({ answer: "Please provide a valid chat Id!" });
 	}
-	const response = await query(prompt, chatId, model);
+	const newPrompt = await getHistory(session.user?.email, chatId);
+	const response = await query(newPrompt, chatId, model);
 	const message = {
 		text: response || "ChatGPT was unable to find an answer for that!",
 		createdAt: admin.firestore.Timestamp.now(),
